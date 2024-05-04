@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+apikey = 'ticket{ChimeDialup2883n24:SQSwCAD35f0FeeMYXOUzYoCOi3RPVYiJ1kMNvBOuaVMUQkJh}'
+import sys,os,subprocess
+
+import requests
+def submit(API_KEY,challengeId,f):
+    url = f"https://play.livectf.com/api/challenges/{challengeId}"
+    headers = {
+        "X-LiveCTF-Token": API_KEY,
+        "Accept": "application/json"
+    }
+    files = {'exploit': f} 
+    response = requests.post(url, headers=headers, files=files)
+    print(response.text)
+def panic(s):
+    print(f"[-] {s}")
+if len(sys.argv) ==2:
+    cmd = sys.argv[1]
+elif len(sys.argv) ==3:
+    cmd = sys.argv[1]
+    challengeId = sys.argv[2]
+if cmd == 'ls':
+    os.system('curl -X GET -H "Accept: application/json" "https://play.livectf.com/api/challenges/"')
+elif cmd == 'get':
+    res = subprocess.run(['curl','-L','-X','GET','-H',"Accept: application/json",f'https://play.livectf.com/api/challenges/{challengeId}/download','-o','challenge.tar'])
+    if res.returncode != 0:
+        panic("Failed to get the challenge")
+    res = subprocess.run(["mkdir",'./challenge'])
+    if res.returncode != 0:
+        panic("Failed to mkdir")
+    subprocess.run(["tar",'xf','challenge.tar','--directory','./challenge'])
+    if res.returncode != 0:
+        panic("Failed to untar")
+elif cmd == 'solve':
+    res = subprocess.run(['cp','./challenge/handout/exp.py','./challenge/exploit/solve-template.py'])
+    if res.returncode != 0:
+        panic("Failed to copy")
+    res = subprocess.run(['./test-solution.sh'],cwd="./challenge")
+    if res.returncode != 0:
+        panic("Failed to verify the solution")
+elif cmd == 'submit':
+    res = subprocess.run(['tar','czf','../submit.tar','-C','./exploit','.'],cwd='./challenge')
+    if res.returncode != 0:
+        panic("Failed to compress the exploit")
+    with open('./submit.tar','rb') as f:
+        submit(apikey,challengeId,f)
+    # subprocess.run(['rm','-rf','./submit.tar'])
+elif cmd == "exp":
+    res = subprocess.run(['curl','-X','GET','-H',f"X-LiveCTF-Token: {apikey}",'-H',"Accept: application/json",f"https://play.livectf.com/api/exploits/{challengeId}"])
+    if res.returncode != 0:
+        panic("Failed to get exploit state")
+elif cmd == 'clean':
+    subprocess.run(['rm','-rf','challenge.tar'])
+    subprocess.run(['rm','-rf','submit.tar'])
+    subprocess.run(['rm','-rf','submit.tar'])
