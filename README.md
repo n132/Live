@@ -1,20 +1,21 @@
 # Live
 Script for Live CTF
 
-# ls
+# Commands
+## ls
 List all the challenges
 ```shell
 ./Live ls
 ```
 
-# get
+## get
 
 Get the challenge attachment and decompress it.
 ```shell
 ./Live get <challengeId>
 ```
 
-# solve
+## solve
 
 Test the local solution at `./challenge/handout/exp.py`
 
@@ -22,7 +23,7 @@ Test the local solution at `./challenge/handout/exp.py`
 ./Live solve
 ```
 
-# submit
+## submit
 
 Compress a solve tarball with script at  `./challenge/handout/exp.py` and submit it.
 
@@ -30,7 +31,7 @@ Compress a solve tarball with script at  `./challenge/handout/exp.py` and submit
 ./Live submit <challengeId>
 ```
 
-# exp
+## exp
 
 Check the submitted solution state.
 
