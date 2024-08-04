@@ -1,17 +1,22 @@
 from pwn import *
+import sys
 context.log_level   ='debug'
 context.arch        ='amd64'
+
+IP = "0.0.0.0"
+PORT = 31337
 '''
 Libc Lib:
     https://libc.rip/
 '''
 # context.terminal = ['tmux', 'splitw', '-h', '-F' '#{pane_pid}', '-P']
-import sys
+
 DEBUG = False if len(sys.argv) > 1 else True
 if DEBUG:
     p=process('./challenge',env={"LD_PRELOAD":"../libc.so.6"})
 else:
-    p = remote("0.0.0.0",31337)
+    p = remote(IP,PORT)
+
 ru 		= lambda a: 	p.readuntil(a)
 r 		= lambda n:		p.read(n)
 sla 	= lambda a,b: 	p.sendlineafter(a,b)
@@ -35,7 +40,10 @@ def debug(script):
     if DEBUG:
         gdb.attach(p,script)
 
-debug('bof ')
+PIE_BASE = 0x555555554000
+
+
+debug('bof 0x')
 # libc = ELF("../libc.so.6")
 
 # libc.address = base
@@ -44,9 +52,11 @@ debug('bof ')
 # ret     = rdi+1
 # sh_str  = libc.search(b"/bin/sh\0").__next__()
 # system  = libc.sym['system']
-# chain   = [rdi,sh_str,system]
+# chain   = [ret]*1 + [rdi,sh_str,system]
 
 
 
 # sl("./submitter 1")
 p.interactive()
+
+
